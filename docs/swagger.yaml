@@ -1,0 +1,78 @@
+basePath: /
+definitions:
+  models.Result:
+    properties:
+      code:
+        type: integer
+      data: {}
+      msg:
+        type: string
+    type: object
+host: localhost:8888
+info:
+  contact: {}
+  description: 这里写描述信息
+  title: 我的swagger
+  version: "1.0"
+paths:
+  /wines:
+    get:
+      description: 这是一个查询白酒列表信息接口
+      parameters:
+      - default: 0
+        description: 第几页
+        in: query
+        name: page_index
+        type: integer
+      - default: 0
+        description: 每页展示条数
+        in: query
+        name: page_size
+        type: integer
+      - default: 0
+        description: 最低价格
+        in: query
+        name: min_price
+        type: integer
+      - default: 0
+        description: 最高价格
+        in: query
+        name: max_price
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 结果
+          schema:
+            $ref: '#/definitions/models.Result'
+      summary: 分页查询所有白酒信息
+      tags:
+      - 白酒相关接口
+  /wines/top:
+    get:
+      description: 这是一个查询白酒各类排行的接口
+      parameters:
+      - description: 第几页
+        enum:
+        - market_price
+        - reference_price
+        in: query
+        name: category
+        type: string
+      - default: 5
+        description: 每页展示条数
+        in: query
+        name: top_num
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 结果
+          schema:
+            $ref: '#/definitions/models.Result'
+      summary: 查询白酒top排行相关接口
+      tags:
+      - 白酒相关接口
+swagger: "2.0"
