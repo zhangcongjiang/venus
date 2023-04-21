@@ -8,6 +8,21 @@ definitions:
       msg:
         type: string
     type: object
+  views.User:
+    properties:
+      age:
+        type: integer
+      email:
+        type: string
+      gender:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      tell:
+        type: string
+    type: object
 host: localhost:8888
 info:
   contact: {}
@@ -15,6 +30,36 @@ info:
   title: 我的swagger
   version: "1.0"
 paths:
+  /user:
+    post:
+      consumes:
+      - application/json
+      description: 创建用户
+      parameters:
+      - description: 请示参数data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/views.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 请求成功
+          schema:
+            $ref: '#/definitions/models.Result'
+        "400":
+          description: 请求错误
+          schema:
+            $ref: '#/definitions/models.Result'
+        "500":
+          description: 内部错误
+          schema:
+            $ref: '#/definitions/models.Result'
+      summary: 创建用户
+      tags:
+      - 用户相关接口
   /wines:
     get:
       description: 这是一个查询白酒列表信息接口

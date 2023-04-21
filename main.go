@@ -5,6 +5,7 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"venus/apps/cigarette/models"
+	_ "venus/apps/user/views"
 	wineModels "venus/apps/wine/models"
 	cigaretteSpider "venus/apps/wine/spiders"
 	wineSpider "venus/apps/wine/spiders"
