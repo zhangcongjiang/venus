@@ -1,17 +1,20 @@
 package database
 
 import (
+	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
 	"time"
+	"venus/config"
 )
 
 var db *gorm.DB
 
 func Setup() {
 	var dialector gorm.Dialector
-	dsn := "host=10.67.37.131 user=postgres password=postgres dbname=venus port=30432 sslmode=disable TimeZone=Asia/Shanghai"
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Shanghai", config.SqlHost, config.SqlUser, config.SqlPassword, config.SqlDbName, config.SqlPort)
+	//dsn := "host=10.67.37.131 user=postgres password=postgres dbname=venus port=30432 sslmode=disable TimeZone=Asia/Shanghai"
 	dialector = postgres.New(postgres.Config{
 		DSN:                  dsn,
 		PreferSimpleProtocol: true, // disables implicit prepared statement usage
@@ -39,7 +42,10 @@ func GetDB() *gorm.DB {
 		Setup()
 	}
 	if err := sqlDB.Ping(); err != nil {
-		sqlDB.Close()
+		err := sqlDB.Close()
+		if err != nil {
+			return nil
+		}
 		Setup()
 	}
 
