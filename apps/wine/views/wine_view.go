@@ -40,7 +40,7 @@ func wines(c *gin.Context) {
 
 	var result commonModels.Result
 	if err != nil {
-		result.Code = 1
+		result.Code = commonModels.CODE_ERROR
 		result.Msg = "fail"
 		result.Data = map[string]string{"err": "参数错误"}
 		c.JSON(http.StatusBadRequest, result)
@@ -55,7 +55,7 @@ func wines(c *gin.Context) {
 		Asc:       true,
 	}
 	wines := models.ListWine(listWineParams)
-	result.Code = 0
+	result.Code = commonModels.CODE_SUCCESS
 	result.Msg = "success"
 	result.Data = wines
 	c.JSON(http.StatusOK, result)
@@ -79,7 +79,7 @@ func topWines(c *gin.Context) {
 	err := c.ShouldBind(p)
 	var result commonModels.Result
 	if err != nil {
-		result.Code = 1
+		result.Code = commonModels.CODE_SUCCESS
 		result.Msg = "fail"
 		result.Data = map[string]string{"err": "参数错误"}
 		c.JSON(http.StatusBadRequest, result)
@@ -91,7 +91,7 @@ func topWines(c *gin.Context) {
 	}
 	wines := models.TopWines(topParams)
 	result = commonModels.Result{
-		Code: 0,
+		Code: commonModels.CODE_ERROR,
 		Data: wines,
 		Msg:  "success",
 	}
