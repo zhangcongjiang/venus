@@ -20,6 +20,7 @@ func init() {
 
 func Routes(r *gin.Engine) {
 	r.POST("/user", AddUser)
+	r.GET("/users", ListUsers)
 }
 
 type UserParams struct {
@@ -36,7 +37,7 @@ type UserParams struct {
 // @Description 创建用户
 // @Accept  json
 // @Produce  json
-// @Param data body User true "请示参数data"
+// @Param data body models.User true "请示参数data"
 // @Success 200 {object} commonModels.Result "请求成功"
 // @Failure 400 {object} commonModels.Result "请求错误"
 // @Failure 500 {object} commonModels.Result "内部错误"
@@ -70,27 +71,46 @@ func AddUser(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-////查询列表接口
-//func ListUsers(c *gin.Context) {
-//	//参数
-//	search := c.Request.FormValue("search")
-//	num := c.Request.FormValue("pageno")
-//	pageno, err := strconv.Atoi(num)
-//	if err != nil {
-//		log.Fatalln(err)
-//	}
-//	//得到数据集
-//	datalist := models.GetUserList(pageno, 1, search)
-//	//得到记录的总数
-//	count := models.GetUserNum(search)
-//	c.JSON(http.StatusOK, gin.H{
-//		"datalist": datalist,
-//		"count":    count,
-//		"pagesize": 1,
-//		"pageno":   pageno,
-//	})
-//}
-//
+type ListUserParams struct {
+	PageIndex int `form:"page_index"`
+	PageSize  int `form:"page_size"`
+}
+
+// @Tags 用户相关接口
+// @Summary 分页查询所有用户
+// @Description 这是一个查询用户列表信息接口
+// @Router /users [get]
+// @Param page_index query int false "第几页" default(0)
+// @Param page_size query int  false "每页展示条数" default(0)
+// @Produce json
+// @Success 200 {object} commonModels.Result "结果"
+func ListUsers(c *gin.Context) {
+	p := &ListUserParams{}
+	err := c.ShouldBind(p)
+
+	var result commonModels.Result
+	if err != nil {
+		result.Code = commonModels.CODE_ERROR
+		result.Msg = "fail"
+		result.Data = map[string]string{"err": "参数错误"}
+		c.JSON(http.StatusBadRequest, result)
+		return
+	}
+	var users []models.User
+	if p.PageIndex <= 0 {
+		p.PageIndex = 1
+	}
+	if p.PageSize <= 0 {
+		p.PageSize = 10
+	}
+	db.Limit(p.PageSize).Offset((p.PageIndex - 1) * p.PageSize).Order("id").Find(&users)
+
+	result.Code = commonModels.CODE_SUCCESS
+	result.Msg = "success"
+	result.Data = users
+	c.JSON(http.StatusOK, result)
+}
+
 ////查询单条记录接口
 //func FindUser(c *gin.Context) {
 //	//参数

@@ -8,20 +8,7 @@ definitions:
       msg:
         type: string
     type: object
-  views.User:
-    properties:
-      age:
-        type: integer
-      email:
-        type: string
-      gender:
-        type: string
-      name:
-        type: string
-      password:
-        type: string
-      tell:
-        type: string
+  models.User:
     type: object
 host: localhost:8888
 info:
@@ -41,7 +28,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/views.User'
+          $ref: '#/definitions/models.User'
       produces:
       - application/json
       responses:
@@ -58,6 +45,30 @@ paths:
           schema:
             $ref: '#/definitions/models.Result'
       summary: 创建用户
+      tags:
+      - 用户相关接口
+  /users:
+    get:
+      description: 这是一个查询用户列表信息接口
+      parameters:
+      - default: 0
+        description: 第几页
+        in: query
+        name: page_index
+        type: integer
+      - default: 0
+        description: 每页展示条数
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 结果
+          schema:
+            $ref: '#/definitions/models.Result'
+      summary: 分页查询所有用户
       tags:
       - 用户相关接口
   /wines:

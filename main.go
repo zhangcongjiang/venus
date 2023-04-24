@@ -23,7 +23,6 @@ import (
 // @BasePath /
 func main() {
 	database.Setup()
-
 	r := route.InitRouter()
 	initRoutes(r)
 
