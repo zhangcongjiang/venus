@@ -21,6 +21,8 @@ func init() {
 func Routes(r *gin.Engine) {
 	r.POST("/user", AddUser)
 	r.GET("/users", ListUsers)
+	r.GET("/user/:id", Details)
+	r.DELETE("/user/:id", Delete)
 }
 
 type UserParams struct {
@@ -111,17 +113,26 @@ func ListUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-////查询单条记录接口
-//func FindUser(c *gin.Context) {
-//	//参数
-//	ids := c.Request.FormValue("id")
-//	id, _ := strconv.Atoi(ids)
-//	res := models.GetUserById(id)
-//	c.JSON(http.StatusOK, gin.H{
-//		"res":  res,
-//		"code": 200,
-//	})
-//}
+// @Tags 用户相关接口
+// @Summary 查询指定用户详细信息
+// @Description 这是一个查询用户详细信息接口
+// @Router /user/{id} [get]
+// @Param id path string true "ID"
+// @Produce json
+// @Success 200 {object} commonModels.Result "结果"
+func Details(c *gin.Context) {
+	//参数
+	id := c.Param("id")
+	var user models.User
+	db.Where("uuid = ?", id).Take(&user)
+	result := commonModels.Result{
+		Code: commonModels.CODE_SUCCESS,
+		Data: user,
+		Msg:  "success",
+	}
+	c.JSON(http.StatusOK, result)
+}
+
 //
 ////修改单条记录接口
 //func UpdateUser(c *gin.Context) {
@@ -148,14 +159,29 @@ func ListUsers(c *gin.Context) {
 //	})
 //}
 //
-////删除某条记录接口
-//func DeleteUser(c *gin.Context) {
-//	//接值
-//	ids := c.Request.FormValue("id")
-//	id, _ := strconv.Atoi(ids)
-//	models.DeleteUser(id)
-//	c.JSON(http.StatusOK, gin.H{
-//		"msg":  "删除成功",
-//		"code": 200,
-//	})
-//}
+
+// @Tags 用户相关接口
+// @Summary 删除用户信息
+// @Description 这是一个删除用户信息接口
+// @Router /user/{id} [delete]
+// @Param id path string true "ID"
+// @Produce json
+// @Success 200 {object} commonModels.Result "结果"
+func Delete(c *gin.Context) {
+	//接值
+	id := c.Param("id")
+	var user models.User
+	db.Where("uuid = ?", id).Take(&user)
+	result := new(commonModels.Result)
+	if user.ID != 0 {
+		db.Delete(&user)
+		result.SetCode(commonModels.CODE_SUCCESS)
+		result.SetData(user)
+		result.SetMessage("success")
+	} else {
+		result.SetMessage("Not Exist")
+		result.SetCode(commonModels.CODE_ERROR)
+	}
+
+	c.JSON(http.StatusOK, result)
+}

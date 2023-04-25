@@ -47,6 +47,43 @@ paths:
       summary: 创建用户
       tags:
       - 用户相关接口
+  /user/{id}:
+    delete:
+      description: 这是一个删除用户信息接口
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 结果
+          schema:
+            $ref: '#/definitions/models.Result'
+      summary: 删除用户信息
+      tags:
+      - 用户相关接口
+    get:
+      description: 这是一个查询用户详细信息接口
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 结果
+          schema:
+            $ref: '#/definitions/models.Result'
+      summary: 查询指定用户详细信息
+      tags:
+      - 用户相关接口
   /users:
     get:
       description: 这是一个查询用户列表信息接口
