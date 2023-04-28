@@ -23,15 +23,7 @@ func Routes(r *gin.Engine) {
 	r.GET("/users", ListUsers)
 	r.GET("/user/:id", Details)
 	r.DELETE("/user/:id", Delete)
-}
-
-type UserParams struct {
-	Name     string `form:"name"`
-	Email    string `form:"email"`
-	Password string `form:"password"`
-	Age      int    `form:"age,omitempty"`
-	Tell     string `form:"tell"`
-	Gender   string `form:"gender"`
+	r.POST("/user/update", Update)
 }
 
 // @Tags 用户相关接口
@@ -46,8 +38,8 @@ type UserParams struct {
 // @Router /user [post]
 func AddUser(c *gin.Context) {
 
-	p := &UserParams{}
-	err := c.ShouldBind(p)
+	user := &models.User{}
+	err := c.ShouldBind(user)
 
 	var result commonModels.Result
 	if err != nil {
@@ -57,15 +49,7 @@ func AddUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, result)
 		return
 	}
-	var user = &models.User{
-		Uuid:     uuid.New().String(),
-		Name:     p.Name,
-		Email:    p.Email,
-		Password: p.Password,
-		Age:      p.Age,
-		Tell:     p.Tell,
-		Gender:   p.Gender,
-	}
+	user.Uuid = uuid.New().String()
 	db.Create(user)
 	result.Code = commonModels.CODE_SUCCESS
 	result.Msg = "success"
@@ -133,32 +117,48 @@ func Details(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-//
-////修改单条记录接口
-//func UpdateUser(c *gin.Context) {
-//	//接值
-//	ids := c.Request.FormValue("id")
-//	id, _ := strconv.Atoi(ids)
-//	name := c.Request.FormValue("name")
-//	cgender := c.Request.FormValue("gender")
-//	gender, _ := strconv.Atoi(cgender)
-//	cage := c.Request.FormValue("age")
-//	age, _ := strconv.Atoi(cage)
-//	//赋值
-//	user := models.User{
-//		ID:     id,
-//		Name:   name,
-//		Gender: gender,
-//		Age:    age,
-//	}
-//	//调用模型中修改方法
-//	user.EditUser()
-//	c.JSON(http.StatusOK, gin.H{
-//		"msg":  "修改成功",
-//		"code": 200,
-//	})
-//}
-//
+// @Tags 用户相关接口
+// @Summary 更新用户信息
+// @Description 创建用户
+// @Accept  json
+// @Produce  json
+// @Param data body models.User true "请示参数data"
+// @Success 200 {object} commonModels.Result "请求成功"
+// @Failure 400 {object} commonModels.Result "请求错误"
+// @Failure 500 {object} commonModels.Result "内部错误"
+// @Router /user/update [post]
+func Update(c *gin.Context) {
+	user := &models.User{}
+	err := c.ShouldBind(user)
+
+	var result commonModels.Result
+	if err != nil {
+		result.Code = commonModels.CODE_ERROR
+		result.Msg = "fail"
+		result.Data = map[string]string{"err": "参数错误"}
+		c.JSON(http.StatusBadRequest, result)
+		return
+	}
+	m := map[string]interface{}{}
+	if user.Tell != "" {
+		m["tell"] = user.Tell
+	}
+	if user.Email != "" {
+		m["email"] = user.Email
+	}
+	if user.Age != 0 {
+		m["age"] = user.Age
+	}
+	if user.Password != "" {
+		m["password"] = user.Password
+	}
+
+	db.Model(&user).Updates(m)
+	result.Code = commonModels.CODE_SUCCESS
+	result.Msg = "success"
+	result.Data = user
+	c.JSON(http.StatusOK, result)
+}
 
 // @Tags 用户相关接口
 // @Summary 删除用户信息
@@ -173,7 +173,7 @@ func Delete(c *gin.Context) {
 	var user models.User
 	db.Where("uuid = ?", id).Take(&user)
 	result := new(commonModels.Result)
-	if user.ID != 0 {
+	if user.Uuid != "" {
 		db.Delete(&user)
 		result.SetCode(commonModels.CODE_SUCCESS)
 		result.SetData(user)

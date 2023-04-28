@@ -1,7 +1,8 @@
 package models
 
 import (
-	"gorm.io/gorm"
+	"fmt"
+	"time"
 	"venus/common/database"
 )
 
@@ -17,12 +18,11 @@ var (
 )
 
 type User struct {
-	gorm.Model
-	Uuid     string `json:"uuid" gorm:"primary_key;uuid"` //uuid
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"-"`
-	Age      int    `json:"age,omitempty"`
-	Tell     string `json:"tell"`
-	Gender   string `json:"gender"`
+	Uuid     string     `form:"uuid" json:"uuid" gorm:"primary_key;uuid"` //uuid
+	Name     string     `form:"name" json:"name"`
+	Email    string     `form:"email" json:"email"`
+	Password string     `form:"password" json:"password"`
+	Birthday *LocalTime `form:"birthday" json:"birthday"`
+	Tell     string     `form:"tell" json:"tell"`
+	Gender   string     `form:"gender" json:"gender"`
 }

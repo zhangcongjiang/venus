@@ -62,6 +62,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/user/update": {
+            "post": {
+                "description": "创建用户",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户相关接口"
+                ],
+                "summary": "更新用户信息",
+                "parameters": [
+                    {
+                        "description": "请示参数data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "请求成功",
+                        "schema": {
+                            "$ref": "#/definitions/models.Result"
+                        }
+                    },
+                    "400": {
+                        "description": "请求错误",
+                        "schema": {
+                            "$ref": "#/definitions/models.Result"
+                        }
+                    },
+                    "500": {
+                        "description": "内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/models.Result"
+                        }
+                    }
+                }
+            }
+        },
         "/user/{id}": {
             "get": {
                 "description": "这是一个查询用户详细信息接口",
@@ -258,7 +304,28 @@ const docTemplate = `{
             }
         },
         "models.User": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+                "age": {
+                    "type": "integer"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "tell": {
+                    "type": "string"
+                },
+                "uuid": {
+                    "description": "uuid",
+                    "type": "string"
+                }
+            }
         }
     }
 }`

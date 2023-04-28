@@ -9,6 +9,20 @@ definitions:
         type: string
     type: object
   models.User:
+    properties:
+      age:
+        type: integer
+      email:
+        type: string
+      gender:
+        type: string
+      name:
+        type: string
+      tell:
+        type: string
+      uuid:
+        description: uuid
+        type: string
     type: object
 host: localhost:8888
 info:
@@ -82,6 +96,36 @@ paths:
           schema:
             $ref: '#/definitions/models.Result'
       summary: 查询指定用户详细信息
+      tags:
+      - 用户相关接口
+  /user/update:
+    post:
+      consumes:
+      - application/json
+      description: 创建用户
+      parameters:
+      - description: 请示参数data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 请求成功
+          schema:
+            $ref: '#/definitions/models.Result'
+        "400":
+          description: 请求错误
+          schema:
+            $ref: '#/definitions/models.Result'
+        "500":
+          description: 内部错误
+          schema:
+            $ref: '#/definitions/models.Result'
+      summary: 更新用户信息
       tags:
       - 用户相关接口
   /users:
