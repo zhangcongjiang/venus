@@ -3,6 +3,7 @@ package views
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"venus/apps/user/models"
 	"venus/common/database"
@@ -11,19 +12,32 @@ import (
 )
 
 var (
-	db = database.GetDB()
+	db     = database.GetDB()
+	logger = logrus.WithFields(logrus.Fields{
+		"module": "user views",
+	})
 )
 
 func init() {
 	route.RegisterRoute(Routes)
+
 }
 
 func Routes(r *gin.Engine) {
 	r.POST("/user", AddUser)
 	r.GET("/users", ListUsers)
-	r.GET("/user/:id", Details)
-	r.DELETE("/user/:id", Delete)
-	r.POST("/user/update", Update)
+	r.GET("/user/:uuid", Details)
+	r.DELETE("/user/:uuid", Delete)
+	r.POST("/user/update/:uuid", Update)
+}
+
+type UserParam struct {
+	Name     string `form:"name" json:"name" example:"张三"`
+	Email    string `form:"email" json:"email" example:"8888888@qq.com" binding:"required,email"`
+	Password string `form:"password" json:"password" example:"xxxxxxxx"`
+	Birthday string `form:"birthday" json:"birthday" example:"1992-09-01" binding:"required,datetime=2006-01-02"`
+	Tell     string `form:"tell" json:"tell" example:"133-3333-3333" binding:"required,phone"`
+	Gender   string `form:"gender" json:"gender" example:"male"`
 }
 
 // @Tags 用户相关接口
@@ -31,25 +45,35 @@ func Routes(r *gin.Engine) {
 // @Description 创建用户
 // @Accept  json
 // @Produce  json
-// @Param data body models.User true "请示参数data"
+// @Param data body UserParam true "请示参数data"
 // @Success 200 {object} commonModels.Result "请求成功"
 // @Failure 400 {object} commonModels.Result "请求错误"
 // @Failure 500 {object} commonModels.Result "内部错误"
 // @Router /user [post]
 func AddUser(c *gin.Context) {
 
-	user := &models.User{}
-	err := c.ShouldBind(user)
+	p := &UserParam{}
+	err := c.ShouldBind(p)
 
 	var result commonModels.Result
 	if err != nil {
+		logger.Error(err.Error())
 		result.Code = commonModels.CODE_ERROR
 		result.Msg = "fail"
 		result.Data = map[string]string{"err": "参数错误"}
 		c.JSON(http.StatusBadRequest, result)
 		return
 	}
-	user.Uuid = uuid.New().String()
+
+	user := &models.User{
+		Uuid:     uuid.New().String(),
+		Name:     p.Name,
+		Email:    p.Email,
+		Password: p.Password,
+		Birthday: p.Birthday,
+		Tell:     p.Tell,
+		Gender:   p.Gender,
+	}
 	db.Create(user)
 	result.Code = commonModels.CODE_SUCCESS
 	result.Msg = "success"
@@ -100,13 +124,13 @@ func ListUsers(c *gin.Context) {
 // @Tags 用户相关接口
 // @Summary 查询指定用户详细信息
 // @Description 这是一个查询用户详细信息接口
-// @Router /user/{id} [get]
-// @Param id path string true "ID"
+// @Router /user/{uuid} [get]
+// @Param uuid path string true "UUID"
 // @Produce json
 // @Success 200 {object} commonModels.Result "结果"
 func Details(c *gin.Context) {
 	//参数
-	id := c.Param("id")
+	id := c.Param("uuid")
 	var user models.User
 	db.Where("uuid = ?", id).Take(&user)
 	result := commonModels.Result{
@@ -122,14 +146,16 @@ func Details(c *gin.Context) {
 // @Description 创建用户
 // @Accept  json
 // @Produce  json
-// @Param data body models.User true "请示参数data"
+// @Param uuid path string true "UUID"
+// @Param data body UserParam true "请示参数data"
 // @Success 200 {object} commonModels.Result "请求成功"
 // @Failure 400 {object} commonModels.Result "请求错误"
 // @Failure 500 {object} commonModels.Result "内部错误"
-// @Router /user/update [post]
+// @Router /user/update/{uuid} [post]
 func Update(c *gin.Context) {
-	user := &models.User{}
-	err := c.ShouldBind(user)
+
+	p := &UserParam{}
+	err := c.ShouldBind(p)
 
 	var result commonModels.Result
 	if err != nil {
@@ -139,18 +165,25 @@ func Update(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, result)
 		return
 	}
+	id := c.Param("uuid")
+	var user models.User
+	db.Where("uuid = ?", id).Take(&user)
 	m := map[string]interface{}{}
-	if user.Tell != "" {
-		m["tell"] = user.Tell
+	if p.Tell != "" {
+		m["tell"] = p.Tell
+		user.Tell = p.Tell
 	}
-	if user.Email != "" {
-		m["email"] = user.Email
+	if p.Email != "" {
+		m["email"] = p.Email
+		user.Email = p.Email
 	}
-	if user.Age != 0 {
-		m["age"] = user.Age
+	if p.Password != "" {
+		m["password"] = p.Password
+		user.Password = p.Password
 	}
-	if user.Password != "" {
-		m["password"] = user.Password
+	if p.Name != "" {
+		m["name"] = p.Name
+		user.Name = p.Name
 	}
 
 	db.Model(&user).Updates(m)
@@ -163,13 +196,13 @@ func Update(c *gin.Context) {
 // @Tags 用户相关接口
 // @Summary 删除用户信息
 // @Description 这是一个删除用户信息接口
-// @Router /user/{id} [delete]
-// @Param id path string true "ID"
+// @Router /user/{uuid} [delete]
+// @Param uuid path string true "UUID"
 // @Produce json
 // @Success 200 {object} commonModels.Result "结果"
 func Delete(c *gin.Context) {
 	//接值
-	id := c.Param("id")
+	id := c.Param("uuid")
 	var user models.User
 	db.Where("uuid = ?", id).Take(&user)
 	result := new(commonModels.Result)

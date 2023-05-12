@@ -12,6 +12,7 @@ import (
 	_ "venus/apps/wine/views"
 	"venus/common/database"
 	commonModels "venus/common/models"
+	_ "venus/common/validator"
 	_ "venus/docs"
 	"venus/route"
 )

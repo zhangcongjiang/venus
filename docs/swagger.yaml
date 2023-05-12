@@ -8,21 +8,30 @@ definitions:
       msg:
         type: string
     type: object
-  models.User:
+  views.UserParam:
     properties:
-      age:
-        type: integer
+      birthday:
+        example: "1992-09-01"
+        type: string
       email:
+        example: 8888888@qq.com
         type: string
       gender:
+        example: male
         type: string
       name:
+        example: 张三
+        type: string
+      password:
+        example: xxxxxxxx
         type: string
       tell:
+        example: 133-3333-3333
         type: string
-      uuid:
-        description: uuid
-        type: string
+    required:
+    - birthday
+    - email
+    - tell
     type: object
 host: localhost:8888
 info:
@@ -42,7 +51,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/models.User'
+          $ref: '#/definitions/views.UserParam'
       produces:
       - application/json
       responses:
@@ -61,13 +70,13 @@ paths:
       summary: 创建用户
       tags:
       - 用户相关接口
-  /user/{id}:
+  /user/{uuid}:
     delete:
       description: 这是一个删除用户信息接口
       parameters:
-      - description: ID
+      - description: UUID
         in: path
-        name: id
+        name: uuid
         required: true
         type: string
       produces:
@@ -83,9 +92,9 @@ paths:
     get:
       description: 这是一个查询用户详细信息接口
       parameters:
-      - description: ID
+      - description: UUID
         in: path
-        name: id
+        name: uuid
         required: true
         type: string
       produces:
@@ -98,18 +107,23 @@ paths:
       summary: 查询指定用户详细信息
       tags:
       - 用户相关接口
-  /user/update:
+  /user/update/{uuid}:
     post:
       consumes:
       - application/json
       description: 创建用户
       parameters:
+      - description: UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
       - description: 请示参数data
         in: body
         name: data
         required: true
         schema:
-          $ref: '#/definitions/models.User'
+          $ref: '#/definitions/views.UserParam'
       produces:
       - application/json
       responses:

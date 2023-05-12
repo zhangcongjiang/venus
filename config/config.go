@@ -4,9 +4,9 @@ const (
 	LogFilePath = "./logs/"
 	LogFileName = "venus"
 
-	SqlHost     = "localhost"
+	SqlHost     = "10.67.37.131"
 	SqlUser     = "postgres"
 	SqlPassword = "postgres"
 	SqlDbName   = "venus"
-	SqlPort     = "5432"
+	SqlPort     = "30432"
 )

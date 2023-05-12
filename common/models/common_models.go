@@ -1,39 +1,9 @@
 package models
 
-import (
-	"database/sql/driver"
-	"fmt"
-	"time"
-)
-
 type Result struct {
 	Code int         `json:"code"`
 	Data interface{} `json:"data"`
 	Msg  string      `json:"msg"`
-}
-
-type LocalTime time.Time
-
-func (t *LocalTime) MarshalJson() ([]byte, error) {
-	tTime := time.Time(*t)
-	return []byte(fmt.Sprintf("\"%v\"", tTime.Format("2006-01-01"))), nil
-}
-
-func (t LocalTime) Value() (driver.Value, error) {
-	var zeroTime time.Time
-	tlt := time.Time(t)
-	if tlt.UnixNano() == zeroTime.UnixNano() {
-		return nil, nil
-	}
-	return tlt, nil
-}
-
-func (t *LocalTime) Scan(v interface{}) error {
-	if value, ok := v.(time.Time); ok {
-		*t = LocalTime(value)
-		return nil
-	}
-	return fmt.Errorf("can not convert %v to timestamp", v)
 }
 
 const (
